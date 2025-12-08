@@ -32,57 +32,11 @@ let getInput (day:int) =
 //         | Match "Blueprint (.*): Each ore robot costs (.*) ore. Each clay robot costs (.*) ore. Each obsidian robot costs (.*) ore and (.*) clay. Each geode robot costs (.*) ore and (.*) obsidian." [ blueprintId; oreRobotCost; clayRobotCost; obsidianRobotOreCost; obsidianRobotClayCost; geodeRobotOreCost; geodeRobotObsidianCost; ] ->
 //             {Id = int blueprintId; OreRobotOreCost = int oreRobotCost; ClayRobotOreCost = int clayRobotCost; ObsidianRobotOreCost = int obsidianRobotOreCost; ObsidianRobotClayCost = int obsidianRobotClayCost; GeodeRobotObsidianCost = int geodeRobotObsidianCost; GeodeRobotOreCost = int geodeRobotOreCost}
 
-let parseRanges (input:string) = input.Split(",")
-
-let createRanges (range:string) =
-    let rangeMinMax = range.Split("-")
-    let min = rangeMinMax[0] |> int64
-    let max = rangeMinMax[1] |> int64
-    let count = int(max - min) + 1
-
-    Array.init (count) (fun i -> min + int64 i |> string)
-
-let findDummyValues (ranges:string[]) =
-    ranges 
-    |> Array.filter (fun s -> 
-        s.Length % 2 = 0 && 
-        let half = s.Length / 2
-        s.Substring(0, half) = s.Substring(half)
-    )
-
-let findRecuringPatterns (number:string) =
-    let len = number.Length
-
-    [1 .. (len / 2)]
-    |> List.filter (fun w -> len % w = 0)
-    |> List.map (fun w ->
-        let pattern = number.Substring(0, w)
-        let repeats = len / w
-        let constructed = String.replicate repeats pattern
-        (constructed = number, number))
-    |> List.filter fst
-    |> fun lst -> lst.Length > 0
-
-let findDummyValuesII (ranges:string[]) =
-    // additionally find ggTs for length, check if ggT windows are recuring i.e. 123123123 one ggT is 3x3 123 repeats so is a dummy
-    ranges 
-    |> Array.filter findRecuringPatterns
-
 // part 1
-getInput 2
-// getTestInput 2
-|> Array.collect parseRanges
-|> Array.map createRanges
-|> Array.collect findDummyValues
-|> Array.map int64
-|> Array.sum
+// getInput 3
+// getTestInput 3
 
 // part 2
-getInput 2
-// getTestInput 2
-|> Array.collect parseRanges
-|> Array.map createRanges
-|> Array.collect findDummyValuesII
-|> Array.map int64
-|> Array.sum
+// getInput 3
+// getTestInput 3
 
