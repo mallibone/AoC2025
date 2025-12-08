@@ -32,11 +32,38 @@ let getInput (day:int) =
 //         | Match "Blueprint (.*): Each ore robot costs (.*) ore. Each clay robot costs (.*) ore. Each obsidian robot costs (.*) ore and (.*) clay. Each geode robot costs (.*) ore and (.*) obsidian." [ blueprintId; oreRobotCost; clayRobotCost; obsidianRobotOreCost; obsidianRobotClayCost; geodeRobotOreCost; geodeRobotObsidianCost; ] ->
 //             {Id = int blueprintId; OreRobotOreCost = int oreRobotCost; ClayRobotOreCost = int clayRobotCost; ObsidianRobotOreCost = int obsidianRobotOreCost; ObsidianRobotClayCost = int obsidianRobotClayCost; GeodeRobotObsidianCost = int geodeRobotObsidianCost; GeodeRobotOreCost = int geodeRobotOreCost}
 
+let findHighestJolt (input: string) =
+    let inputNumbers = 
+        input.ToCharArray()
+        |> Array.map string
+        |> Array.map int
+
+    let highestJolt = inputNumbers.[.. inputNumbers.Length - 2] |> Array.max
+    let hightestJoltIndex = inputNumbers |> Array.findIndex (fun x -> x = highestJolt)
+    let nextHighestJolt = inputNumbers.[hightestJoltIndex + 1..] |> Array.max
+    // printfn "%A" (highestJolt * 10 + nextHighestJolt)
+
+    highestJolt * 10 + nextHighestJolt
+
+
+// find the highest number value
+// find the index
+// index + 1 find the next highest number value
+// return the double digit number
+
 // part 1
-// getInput 3
+getInput 3
 // getTestInput 3
+|> Array.map findHighestJolt
+|> Array.sum
 
 // part 2
 // getInput 3
 // getTestInput 3
 
+
+// let inputNumbers = [|9; 8; 7; 6; 5; 4; 3; 2; 1; 1; 1; 1; 1; 1; 1|]
+// let highestJolt =  inputNumbers.[.. 1] |> Array.max
+// let hightestJoltIndex = inputNumbers |> Array.findIndex (fun x -> x = highestJolt)
+// let nextHighestJolt = inputNumbers.[hightestJoltIndex + 1..] |> Array.max
+// highestJolt * 10 + nextHighestJolt
