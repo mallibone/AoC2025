@@ -45,6 +45,24 @@ let findHighestJolt (input: string) =
 
     highestJolt * 10 + nextHighestJolt
 
+let findHighestJoltII (input: string) =
+    let inputNumbers = 
+        input.ToCharArray()
+        |> Array.map string
+        |> Array.map int64
+
+    let rec findHighestJoltDigits (input: int64 array) (digitsLeft:int) (highestJolt:int64) =
+        if digitsLeft = 0 then
+            highestJolt
+        else
+            printfn "%A %A %A" digitsLeft highestJolt input.Length
+            let nextHighestJolt = input.[.. input.Length - (digitsLeft)] |> Array.max
+            let hightestJoltIndex = input |> Array.findIndex (fun x -> x = nextHighestJolt)
+            // let nextHighestJolt = inputNumbers.[hightestJoltIndex + 1..] |> Array.max
+            // printfn "%A" (highestJolt * 10 + nextHighestJolt)
+
+            findHighestJoltDigits (input.[hightestJoltIndex + 1..]) (digitsLeft-1) (highestJolt * 10L + nextHighestJolt)
+    findHighestJoltDigits inputNumbers 12 0L
 
 // find the highest number value
 // find the index
@@ -59,11 +77,12 @@ getInput 3
 
 // part 2
 // getInput 3
-// getTestInput 3
+getTestInput 3
+|> Array.map findHighestJoltII
 
 
-// let inputNumbers = [|9; 8; 7; 6; 5; 4; 3; 2; 1; 1; 1; 1; 1; 1; 1|]
-// let highestJolt =  inputNumbers.[.. 1] |> Array.max
+let inputNumbers = [|9; 8; 7; 6; 5; 4; 3; 2; 1; 1; 1; 1; 1; 1; 1|]
+let highestJolt =  inputNumbers.[.. inputNumbers.Length - 12] |> Array.max
 // let hightestJoltIndex = inputNumbers |> Array.findIndex (fun x -> x = highestJolt)
 // let nextHighestJolt = inputNumbers.[hightestJoltIndex + 1..] |> Array.max
 // highestJolt * 10 + nextHighestJolt
