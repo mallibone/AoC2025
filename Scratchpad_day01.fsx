@@ -93,8 +93,8 @@ getInput 1
 
 
 // part 2
-// getInput 1
-getTestInput 1
+getInput 1
+// getTestInput 1
 |> Array.map parseRotationII
 |> Seq.fold calcRotationPosII (50, 0)
 |> fun (_, zeroCounter) -> printfn "Zero counter: %A" zeroCounter
