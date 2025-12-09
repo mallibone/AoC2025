@@ -69,13 +69,48 @@ let findPaperRollsThatCanBeMoved (map: string array array) =
 
     count
 
+let findPaperRollsCoordsThatCanBeMoved (map: string array array) =
+    let rows = map.Length
+    let cols = map.[0].Length
+
+    let mutable count = 0
+
+    [
+        for x in 0 .. rows - 1 do
+        for y in 0 .. cols - 1 do
+            if map[x][y] = "@" && neighborCount map x y < 4 then
+                yield (x, y)
+    ]
+
+let movePaperRolls (map: string array array) =
+    let rows = map.Length
+    let cols = map.[0].Length
+
+    let rec removeRolls map count =
+
+        let paperRollsToMove = findPaperRollsCoordsThatCanBeMoved map
+
+        paperRollsToMove |> List.iter (fun (x, y) -> map.[x].[y] <- "x")
+
+        let newCount = paperRollsToMove.Length + count
+
+        if newCount = count then
+            newCount
+        else
+            removeRolls map newCount
+
+    removeRolls map 0
+
+
 // part 1
-// getInput 4
-getTestInput 4
+getInput 4
+// getTestInput 4
 |> Array.map parseToMap
 |> findPaperRollsThatCanBeMoved
 
 // part 2
-// getInput 4
+getInput 4
 // getTestInput 4
+|> Array.map parseToMap
+|> movePaperRolls
 
