@@ -63,14 +63,26 @@ getInput 5
 |> findFreshIngredients
 |> Array.length
 
+let mergeRanges (freshIngredientIdRanges: (int64 * int64)[]) =
+    freshIngredientIdRanges
+    |> Array.sortBy fst
+    |> Array.fold (fun acc (startId, endId) ->
+        match acc with
+        | [] -> [ (startId, endId) ]
+        | (lastStart, lastEnd) :: tail when startId <= lastEnd + 1L ->
+            (lastStart, max lastEnd endId) :: tail
+        | _ ->
+            (startId, endId) :: acc
+    ) []
+    |> Array.ofList
 
 // part 2
-// getInput 5
-getTestInput 5
+getInput 5
+// getTestInput 5
 |> parseInput
-|> fun (freshIngredientIdRanges, _) -> 
-    freshIngredientIdRanges 
-    |> Array.collect (fun (startId, endId) -> Array.init (int (endId - startId + 1L)) (fun i -> startId + int64 i))
-    |> HashSet
+|> fst
+|> mergeRanges
+|> Array.map (fun (startId, endId) -> endId - startId + 1L)
+|> Array.sum
 
 
