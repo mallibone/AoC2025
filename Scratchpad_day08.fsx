@@ -56,36 +56,36 @@ let calculateDistances (vectorPairs: (Vector * Vector) seq) =
     |> Seq.sortBy (fun (_, _, distance) -> distance)
 
 let getNeighbours (distances: (Vector * Vector * float) seq) =
-    let rec findNeighbours (distancesList: (Vector * Vector * float) list) (closeNeighbours: Vector HashSet list) =
+    let rec findNeighbours (distancesList: (Vector * Vector * float) list) (circuits: Vector HashSet list) =
         match distancesList with
-        | [] -> closeNeighbours
+        | [] -> circuits
         | (vector1, vector2, dist)::tail ->
-            let set1 = closeNeighbours |> List.tryFind (fun hs -> hs.Contains(vector1))
-            let set2 = closeNeighbours |> List.tryFind (fun hs -> hs.Contains(vector2))
+            let set1 = circuits |> List.tryFind (fun hs -> hs.Contains(vector1))
+            let set2 = circuits |> List.tryFind (fun hs -> hs.Contains(vector2))
             
             match set1, set2 with
             | Some s1, Some s2 when obj.ReferenceEquals(s1, s2) ->
                 // Already in the same set
-                findNeighbours tail closeNeighbours
+                findNeighbours tail circuits
             | Some s1, Some s2 ->
                 // Different sets - merge them
                 s2 |> Seq.iter (s1.Add >> ignore)
-                let newNeighbours = closeNeighbours |> List.filter (fun hs -> not (obj.ReferenceEquals(hs, s2)))
+                let newNeighbours = circuits |> List.filter (fun hs -> not (obj.ReferenceEquals(hs, s2)))
                 findNeighbours tail newNeighbours
             | Some s1, None ->
                 // vector2 not in any set, add to s1
                 s1.Add(vector2) |> ignore
-                findNeighbours tail closeNeighbours
+                findNeighbours tail circuits
             | None, Some s2 ->
                 // vector1 not in any set, add to s2
                 s2.Add(vector1) |> ignore
-                findNeighbours tail closeNeighbours
+                findNeighbours tail circuits
             | None, None ->
                 // Neither in any set, create new set
                 let newSet = HashSet<Vector>()
                 newSet.Add(vector1) |> ignore
                 newSet.Add(vector2) |> ignore
-                findNeighbours tail (newSet :: closeNeighbours)
+                findNeighbours tail (newSet :: circuits)
 
     findNeighbours (distances |> Seq.toList) []
 
@@ -106,7 +106,47 @@ getInput 8
 |> List.take 3
 |> List.fold (fun acc hs -> acc * int64 hs.Count) 1L
 
+let createSingleLargeCircuit (distances: (Vector * Vector * float) seq) =
+    let rec createLargeCircuit (distancesList: (Vector * Vector * float) list) (circuits: Vector HashSet list) (lastVectors : Vector * Vector) =
+        match distancesList with
+        | [] -> lastVectors
+        | (vector1, vector2, dist)::tail ->
+            let set1 = circuits |> List.tryFind (fun hs -> hs.Contains(vector1))
+            let set2 = circuits |> List.tryFind (fun hs -> hs.Contains(vector2))
+            
+            match set1, set2 with
+            | Some s1, Some s2 when obj.ReferenceEquals(s1, s2) ->
+                // Already in the same set
+                createLargeCircuit tail circuits lastVectors
+            | Some s1, Some s2 ->
+                // Different sets - merge them
+                s2 |> Seq.iter (s1.Add >> ignore)
+                let newNeighbours = circuits |> List.filter (fun hs -> not (obj.ReferenceEquals(hs, s2)))
+                createLargeCircuit tail newNeighbours (vector1, vector2)
+            | Some s1, None ->
+                // vector2 not in any set, add to s1
+                s1.Add(vector2) |> ignore
+                createLargeCircuit tail circuits (vector1, vector2)
+
+            | None, Some s2 ->
+                // vector1 not in any set, add to s2
+                s2.Add(vector1) |> ignore
+                createLargeCircuit tail circuits (vector1, vector2)
+            | None, None ->
+                // Neither in any set, create new set
+                let newSet = HashSet<Vector>()
+                newSet.Add(vector1) |> ignore
+                newSet.Add(vector2) |> ignore
+                createLargeCircuit tail (newSet :: circuits) (vector1, vector2)
+
+    createLargeCircuit (distances |> Seq.toList) [] ({X = 0; Y = 0; Z = 0}, {X = 0; Y = 0; Z = 0})
+
 // part 2
-// getInput 8
+getInput 8
 // getTestInput 8
+|> Array.map parseVector
+|> vectorPairs
+|> calculateDistances
+|> createSingleLargeCircuit
+|> fun (v1, v2) -> v1.X * v2.X
 
